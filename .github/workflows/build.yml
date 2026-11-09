@@ -1,0 +1,75 @@
+name: Build and release
+
+on:
+  push:
+    branches: [master, main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup --no-progress -y }
+
+      - name: Version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") }
+          else { $v = ([xml](Get-Content src/TeamViewerCleanup/TeamViewerCleanup.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1 }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Test and build
+        shell: pwsh
+        run: ./build.ps1 -Version ${{ steps.version.outputs.version }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TeamViewerCleanupTool-${{ steps.version.outputs.version }}
+          path: dist/*
+
+      - name: Attest build provenance
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.exe
+            dist/*.msi
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          $notes = @"
+          ## Downloads
+
+          | File | Use it if |
+          |---|---|
+          | **TeamViewerCleanupTool-$v-setup.exe** | You want to install it like any other app |
+          | **TeamViewerCleanupTool-$v-x64.msi** | You deploy software with Group Policy, Intune or another tool |
+          | **TeamViewerCleanupTool-$v-portable.exe** | You want to run it once without installing |
+
+          Requires Windows 10 or 11. Verify downloads with ``SHA256SUMS.txt`` or ``gh attestation verify <file> --repo ${{ github.repository }}``.
+
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md) for what changed.
+          "@
+          gh release create "${{ github.ref_name }}" dist/* --title "TeamViewer Cleanup Tool $v" --notes $notes

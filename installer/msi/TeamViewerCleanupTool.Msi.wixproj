@@ -1,0 +1,13 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!-- MSI installer (WiX Toolset v5). Built by build.ps1, which passes Version, AppDir and LicenseRtf. -->
+  <PropertyGroup>
+    <Version Condition="'$(Version)' == ''">0.0.0</Version>
+    <OutputName>TeamViewerCleanupTool-$(Version)-x64</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <DefineConstants>Version=$(Version);AppDir=$(AppDir);LicenseRtf=$(LicenseRtf);RepoRoot=$(MSBuildThisFileDirectory)..\..</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+</Project>

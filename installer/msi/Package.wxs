@@ -1,0 +1,52 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package Name="TeamViewer Cleanup Tool"
+           Manufacturer="RatioJuris"
+           Version="$(var.Version)"
+           UpgradeCode="{2B8E5D7A-0F44-4C3B-8D2E-5A9C1F6B7E21}"
+           Scope="perMachine"
+           Compressed="yes">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Advertised shortcuts need the icon ID to end in the key file's extension (ICE50). -->
+    <Icon Id="AppIcon.exe" SourceFile="$(var.AppDir)\TeamViewerCleanupTool.exe" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.exe" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/RatioJuris/TeamViewer-Cleanup-Tool" />
+    <Property Id="ARPHELPLINK" Value="https://ratiojuris.github.io/legal/teamviewer-cleanup-tool/support/" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="TeamViewer Cleanup Tool" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component>
+        <File Id="AppExe" Source="$(var.AppDir)\TeamViewerCleanupTool.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut"
+                    Directory="ProgramMenuFolder"
+                    Name="TeamViewer Cleanup Tool"
+                    Description="Find and remove everything TeamViewer leaves behind"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon.exe"
+                    Advertise="yes" />
+        </File>
+      </Component>
+      <Component>
+        <File Source="$(var.AppDir)\TeamViewerCleanupTool.exe.config" />
+      </Component>
+      <Component>
+        <File Source="$(var.RepoRoot)\LICENSE" Name="LICENSE.txt" />
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="Main" Title="TeamViewer Cleanup Tool">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+    <ui:WixUI Id="WixUI_Minimal" />
+  </Package>
+</Wix>

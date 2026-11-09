@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- .NET Framework 4.8 is part of Windows 10 and 11, so users need nothing extra. -->
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>TeamViewerCleanup</RootNamespace>
+    <AssemblyName>TeamViewerCleanupTool</AssemblyName>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+
+    <Version>2.0.0</Version>
+    <Product>TeamViewer Cleanup Tool</Product>
+    <Title>TeamViewer Cleanup Tool</Title>
+    <Description>Finds and removes everything TeamViewer leaves behind.</Description>
+    <Company>RatioJuris</Company>
+    <Authors>RatioJuris</Authors>
+    <Copyright>Copyright © 2018–2026 RatioJuris</Copyright>
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ServiceProcess" />
+    <InternalsVisibleTo Include="TeamViewerCleanup.Tests" />
+  </ItemGroup>
+
+</Project>
